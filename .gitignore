@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+Thumbs.db
+
+# Don't commit any user data accidentally dragged into the plugin
+*.docx
+*.pdf
+_tmp_docx/
+paper/

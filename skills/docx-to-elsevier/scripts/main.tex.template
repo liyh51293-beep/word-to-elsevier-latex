@@ -1,0 +1,83 @@
+%% ============================================================
+%%  Elsevier CAS single-column manuscript
+%%  Class : cas-sc  (Elsevier CAS bundle, single-column)
+%%  Cite  : numeric  [1], [2,3]  via natbib
+%% ============================================================
+\documentclass[a4paper,fleqn]{cas-sc}
+
+% --- packages ---------------------------------------------------
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{longtable}
+\usepackage[numbers,sort&compress]{natbib} % numeric citation [1], [2,3]
+\usepackage{xpatch}
+\usepackage[figuresright]{rotating}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{hyperref}
+
+\renewcommand{\figurename}{Fig.}
+\AtBeginDocument{%
+  \renewcommand{\figureautorefname}{Fig.}%
+  \renewcommand{\tableautorefname}{Table}%
+}
+
+% --- Caption style: serif (Roman) regular, label "Fig. N:" / "Table N:"
+% with bold prefix only, body justified, matches Elsevier preprint look.
+\ExplSyntaxOn
+\cs_set:Npn \__make_fig_caption:nn #1#2
+  {
+    \l_fig_align_tl
+    \skip_vertical:N \l_fig_abovecap_skip
+    \parbox { \l_fig_width_dim }
+      {\rightskip=0pt \unskip \ignorespaces
+       \normalfont \small
+       \textbf{#1:}~#2 \par }
+    \skip_vertical:N \l_fig_belowcap_skip
+  }
+\cs_set:Npn \__make_tbl_caption:nn #1#2
+  {
+    \l_tbl_align_tl
+    \skip_vertical:N \l_tbl_abovecap_skip
+    \parbox { \dimexpr ( \l_tbl_width_dim ) }
+      {\centering \normalfont \small
+       \textbf{#1:}~#2 \par \vskip 4pt }
+    \skip_vertical:N \l_tbl_belowcap_skip
+  }
+\ExplSyntaxOff
+
+\begin{document}
+
+\let\WriteBookmarks\relax
+\def\floatpagepagefraction{1}
+\def\textpagefraction{.001}
+\shorttitle{}
+\shortauthors{}
+% Suppress running header (cas-sc default puts shorttitle in header)
+\makeatletter
+\ExplSyntaxOn
+\cs_set:Npn \__cas_head: { }
+\ExplSyntaxOff
+\makeatother
+
+% --- frontmatter ------------------------------------------------
+\input{frontmatter.tex}
+
+\maketitle
+
+% --- body -------------------------------------------------------
+\input{body.tex}
+
+% --- references -------------------------------------------------
+\bibliographystyle{unsrtnat}
+\bibliography{refs}
+
+\end{document}

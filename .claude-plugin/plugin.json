@@ -1,0 +1,8 @@
+{
+  "name": "word-to-elsevier-latex",
+  "version": "1.0.0",
+  "description": "Convert a Word (.docx) manuscript into an Elsevier CAS LaTeX project (cas-sc class, numeric citations, all formatting fixes pre-applied).",
+  "author": {
+    "name": "Yonghui Li"
+  }
+}
