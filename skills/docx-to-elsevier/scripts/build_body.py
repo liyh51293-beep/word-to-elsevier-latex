@@ -130,8 +130,11 @@ def emit_table(t, tnum, cap_tex):
         out.append(hdr_line)
         out.append('  \\midrule')
         out.append('  \\endhead')
-        out.append('  \\bottomrule')
+        # footer for continuation pages (no bottom rule, just keep flowing)
         out.append('  \\endfoot')
+        # footer for the last page only — closing rule
+        out.append('  \\bottomrule')
+        out.append('  \\endlastfoot')
         # data rows
         for row in rows[1:]:
             cells = []
@@ -141,7 +144,6 @@ def emit_table(t, tnum, cap_tex):
                 sp = c.get('span', 1)
                 cells.append(f'\\multicolumn{{{sp}}}{{c}}{{{txt}}}' if sp > 1 else txt)
             out.append('  ' + ' & '.join(cells) + ' \\\\')
-        out.append('  \\bottomrule')
         out.append('\\end{longtable}')
     else:
         # --- regular table ---
