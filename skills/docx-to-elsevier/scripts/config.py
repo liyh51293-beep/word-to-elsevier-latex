@@ -25,3 +25,7 @@ def _resolve(env_key, default):
 
 DOCX_TMP = _resolve('DOCX_TMP', '_tmp_docx')
 PAPER_OUT = _resolve('PAPER_OUT', 'paper')
+
+# Word style-ids that mark bibliography paragraphs.
+# Override via env var BIB_STYLE (comma-separated), e.g. BIB_STYLE=af5,Literature
+BIB_STYLE_IDS = os.environ.get('BIB_STYLE', 'Literature,af5').split(',')

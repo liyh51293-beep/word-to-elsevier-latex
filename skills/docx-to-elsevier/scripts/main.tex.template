@@ -77,7 +77,7 @@
 \input{body.tex}
 
 % --- references -------------------------------------------------
-\bibliographystyle{unsrtnat}
+\bibliographystyle{elsarticle-num}
 \bibliography{refs}
 
 \end{document}

@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
-"""Parse references from Word document.xml into a numeric-keyed BibTeX file.
+r"""Parse references from Word document.xml into a numeric-keyed BibTeX file.
 
-The user spec said pStyle="Literature" but the actual document uses pStyle="af5"
-for the bibliography; references are formatted as:
+Two common reference formats are handled:
+
+  Format A (quoted-title, typical in engineering):
     N. Authors, "Title," Journal vol no. X (year): pages. https://doi.org/...
-or for conference papers:
     N. Authors, "Title," in Proceedings... (year): pages. https://doi.org/...
 
-Output: paper/refs.bib with @article{N,...} keys 1..146 in document order.
+  Format B (unquoted-title, typical in biomedical / life-sciences):
+    N. Authors (YEAR). Title. Journal, vol(issue), pages. https://doi.org/DOI
+
+If no quoted title is found, the parser falls back to splitting on
+". " after the parenthesized year (Format B).
+
+The style-id used for bibliography paragraphs varies across documents
+('Literature', 'af5', or none at all).  Set BIB_STYLE_IDS in config.py
+or override via env var BIB_STYLE.
+
+Output: paper/refs.bib with @article{N,...} keys in document order.
 """
 import os, re, sys, io
 import xml.etree.ElementTree as ET
@@ -15,7 +25,7 @@ import xml.etree.ElementTree as ET
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config import DOCX_TMP, PAPER_OUT
+from config import DOCX_TMP, PAPER_OUT, BIB_STYLE_IDS
 DOC_XML = str(DOCX_TMP / "word" / "document.xml")
 OUT_BIB = str(PAPER_OUT / "refs.bib")
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
@@ -35,8 +45,8 @@ def collect_refs(xml_path):
             ps = pPr.find(f'{{{W}}}pStyle')
             if ps is not None:
                 style = ps.get(f'{{{W}}}val')
-        # Accept either Literature or af5 (the actual style in this doc)
-        if style not in ('Literature', 'af5'):
+        # Use configurable style-ids (set BIB_STYLE env var for unusual documents)
+        if style not in BIB_STYLE_IDS:
             continue
         txt = get_text(p)
         m = re.match(r'^\s*\[?(\d+)\]?[\.、]?\s+(.*)$', txt, re.S)
@@ -146,7 +156,7 @@ def parse_one(n, raw):
         url = murl.group(0).rstrip('.,;:')
         text = (text[:murl.start()] + text[murl.end():]).strip().rstrip('.').strip()
 
-    # Extract quoted title
+    # --- Extract quoted title (Format A) ---
     title = None
     rest_after_title = None
     authors_part = None
@@ -155,6 +165,22 @@ def parse_one(n, raw):
         title = mtitle.group(1).strip().rstrip(',').strip()
         authors_part = text[:mtitle.start()].strip().rstrip(',').strip()
         rest_after_title = text[mtitle.end():].strip().lstrip(',').strip().rstrip('.').strip()
+    # --- Fallback: unquoted title (Format B) ---
+    # Pattern: Authors (YEAR). Title. Venue details.
+    # Split at parenthesized year to separate authors from title+venue.
+    if not title:
+        my = re.search(r'\((\d{4})[a-z]?\)', text)
+        if my:
+            authors_part = text[:my.start()].strip().rstrip(',;.').strip()
+            rest = text[my.end():].strip().lstrip('.').strip()
+            # First ". " separates title from venue
+            dot = rest.find('. ')
+            if dot != -1:
+                title = rest[:dot].strip()
+                rest_after_title = rest[dot + 2:].strip().rstrip('.').strip()
+            else:
+                title = rest.strip().rstrip('.').strip()
+                rest_after_title = ''
 
     fields = {}
     entry_type = 'article'

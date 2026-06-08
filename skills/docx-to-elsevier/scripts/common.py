@@ -28,6 +28,9 @@ UNICODE_MAP = {
     '•':r'$\bullet$', '…':r'\ldots{}',
     '、':', ',
     '®':r'\textsuperscript{\textregistered}',
+    # Chinese/Turkish punctuation & letters (commonly leak into English manuscripts)
+    '，': ', ', '：': ': ', '；': '; ', '（': '(', '）': ')', '。': '.',
+    'ı': r'\i{}', 'İ': r'\.{I}', 'Ş': r'\c{S}', 'ş': r'\c{s}',
     # Subscript digits
     '₀':r'$_{0}$', '₁':r'$_{1}$', '₂':r'$_{2}$', '₃':r'$_{3}$', '₄':r'$_{4}$',
     '₅':r'$_{5}$', '₆':r'$_{6}$', '₇':r'$_{7}$', '₈':r'$_{8}$', '₉':r'$_{9}$',
